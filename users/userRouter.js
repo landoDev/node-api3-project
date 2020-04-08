@@ -14,7 +14,9 @@ router.post('/', validateUser, (req, res) => {
 });
 
 router.post('/:id/posts', validateUserId, validatePost, (req, res) => {
-  Posts.insert(req.body)
+  const newPost = req.body;
+  newPost.user_id = req.params.id;
+  Posts.insert(newPost)
   .then(post => {
     res.status(201).json(post)
   })
@@ -48,11 +50,23 @@ router.get('/:id/posts', validateUserId, (req, res) => {
 });
 
 router.delete('/:id', validateUserId, (req, res) => {
-  // do your magic!
+  Users.remove(req.params.id)
+  .then(user => {
+    res.status(200).json({message: 'The user was deleted'})
+  })
+  .catch(err=>{
+    res.status(500).json({message: "The user could not be removed"})
+})
 });
 
-router.put('/:id', validateUserId, (req, res) => {
-  // do your magic!
+router.put('/:id', validateUserId, validateUser, (req, res) => {
+  Users.update(req.params.id, req.body)
+  .then(user => {
+    res.status(200).json(user)
+  })
+  .catch(err => {
+    res.status(500).json({error: "Could not update user"})
+  });
 });
 
 //custom middleware
