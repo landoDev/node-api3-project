@@ -3,13 +3,19 @@ const Users = require('./userDb')
 const router = express.Router();
 
 router.post('/', validateUser, (req, res) => {
-  res.status(201).json(req.body);
+  Users.insert(req.body)
+  .then(user => {
+    res.status(201).json(user)
+  })
+  .catch(err => {
+    res.status(500).json({error: "Could not post new user"})
+  });
 });
 
 router.post('/:id/posts', validateUserId, validatePost, (req, res) => {
   Users.insert(req.body)
-  .then(user => {
-    res.status(201).json(user)
+  .then(post => {
+    res.status(201).json(post)
   })
   .catch(err => {
     res.status(500).json({error: "Could not post new user"})
