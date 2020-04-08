@@ -37,7 +37,13 @@ router.get('/:id', validateUserId, (req, res) => {
 });
 
 router.get('/:id/posts', validateUserId, (req, res) => {
-  // do your magic!
+  Users.getUserPosts(req.user)
+  .then(posts => {
+    res.status(200).json(posts);
+  })
+  .catch(err => {
+    res.status(500).json({message: 'Could not get posts'})
+  })
 });
 
 router.delete('/:id', validateUserId, (req, res) => {
@@ -78,7 +84,14 @@ function validateUser(req, res, next) {
 }
 
 function validatePost(req, res, next) {
-  // do your magic!
+  if(req.body.constructor === Object && Object.keys(req.body).length === 0) {
+    return res.status(400).json({ message: "missing post data" })
+  } else {
+   if (!req.body.text) {
+    return res.status(400).json({ message: "missing required name field" })
+  }
+  }
+  next();
 }
 
 module.exports = router;
