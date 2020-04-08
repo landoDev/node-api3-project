@@ -7,7 +7,13 @@ router.post('/', validateUser, (req, res) => {
 });
 
 router.post('/:id/posts', validateUserId, validatePost, (req, res) => {
-
+  Users.insert(req.body)
+  .then(user => {
+    res.status(201).json(user)
+  })
+  .catch(err => {
+    res.status(500).json({error: "Could not post new user"})
+  });
 });
 
 router.get('/', (req, res) => {
@@ -42,7 +48,6 @@ function validateUserId(req, res, next) {
     const { id } = req.params;
     Users.getById(id)
     .then(user => {
-      console.log(user)
       if(user){
         req.user = user;
         next();
@@ -56,14 +61,14 @@ function validateUserId(req, res, next) {
 }
 
 function validateUser(req, res, next) {
-  Users.insert(req.body)
-  .then(user => {
-    console.log(user);
-    next();
-  })
-  .catch(err => {
-    res.status(500).json({error: "Could not post new user"})
-  });
+  if(req.body.constructor === Object && Object.keys(req.body).length === 0) {
+     return res.status(400).json({ message: "missing user data" })
+   } else {
+    if (!req.body.name) {
+     return res.status(400).json({ message: "missing required name field" })
+   }
+   next();
+   }
 }
 
 function validatePost(req, res, next) {
