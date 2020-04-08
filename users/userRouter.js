@@ -29,11 +29,17 @@ router.post('/:id/posts', (req, res) => {
 });
 
 router.get('/', (req, res) => {
-  // do your magic!
+  Users.get()
+  .then(users =>{
+    res.status(200).json(users)
+  })
+  .catch(err => {
+    res.status(500).status.json({message: "Couldn't grab users"});
+  })
 });
 
-router.get('/:id', (req, res) => {
-  // do your magic!
+router.get('/:id', validateUserId, (req, res) => {
+  res.status(200).json(req.user);
 });
 
 router.get('/:id/posts', (req, res) => {
@@ -51,7 +57,19 @@ router.put('/:id', (req, res) => {
 //custom middleware
 
 function validateUserId(req, res, next) {
-  // do your magic!
+    const { id } = req.params;
+    Users.getById(id)
+    .then(user => {
+      if(user){
+        req.user = user;
+        next();
+      } else {
+        res.status(400).json({message: "invalid user id"})
+      }
+    })
+    .catch(err => {
+      res.status(500).json({message: 'Could not get user'})
+    });
 }
 
 function validateUser(req, res, next) {
